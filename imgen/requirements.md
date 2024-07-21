@@ -216,7 +216,7 @@ The program should have the classes below
 
 Please, Note: 
 
-The project output structure should be as follows: 
+The project output structure should be as seen below. Make sure the python files names are matching: 
 ```
 /
 ├── imgen/ # contains all the classes
@@ -229,8 +229,7 @@ The project output structure should be as follows:
 │ └── stability_imgen.py # Main application
 └── venv/ # Virtual environment
 ```
-Make sure the request sent to the Stability.ai is correct, and that the response correctly decode the image in the format provided, and that the output response is stored in the current GenIO instance in the gen_result field
+Make sure the written code is minimal. 
 
-The default value for seed should be 0 (integer), for aspect_ratio should be "2:3" , for output_format should be "png"
-Before sending the params, print out the parameters sent as request on the console
+
 

@@ -8,8 +8,8 @@ class StabilityImGen:
     def __init__(self):
         props = PropertiesIO('cardgen.properties')
         api_key = props.get_property('stability.ai.api.key')
-        
         self.client = StabilityAIClient(api_key)
+        
         self.gen_io = self.load_or_create_genio()
         self.ui = ImgGenUI(self.gen_io, self.client)
 
