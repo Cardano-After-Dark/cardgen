@@ -13,10 +13,15 @@ class StabilityAIClient:
             "Authorization": f"Bearer {self.api_key}"
         }
 
+        # Convert all values to strings
+        data = {k: str(v) for k, v in params.items()}
+
+        # Send request as multipart/form-data
         response = requests.post(
             self.host,
             headers=headers,
-            data=params
+            files={"none": ""},  # This forces the request to be multipart/form-data
+            data=data
         )
 
         if not response.ok:

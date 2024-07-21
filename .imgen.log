@@ -44,3 +44,10 @@
 2024-07-22 01:19:47,724 - imgen_logger - WARNING - No latest_genio file found, creating a new one
 2024-07-22 01:20:03,079 - imgen_logger - INFO - Generating image with the following parameters: <gen_io.GenIO object at 0x107402de0>
 2024-07-22 01:20:03,367 - imgen_logger - ERROR - Error during image generation: HTTP 400: {"errors":["content-type: must be multipart/form-data"],"id":"b75028155794070dee5545b3a0b16857","name":"bad_request"}
+2024-07-22 01:22:01,805 - imgen_logger - INFO - API key loaded: 51 bytes
+2024-07-22 01:22:01,805 - imgen_logger - INFO - Loading latest_genio file from .imgen
+2024-07-22 01:22:01,805 - imgen_logger - WARNING - No latest_genio file found, creating a new one
+2024-07-22 01:22:17,522 - imgen_logger - INFO - Generating image with the following parameters: <gen_io.GenIO object at 0x11012d040>
+2024-07-22 01:22:29,775 - imgen_logger - INFO - Image generation successful
+2024-07-22 01:23:26,072 - imgen_logger - INFO - Saving image to ./out/genio
+2024-07-22 01:25:25,762 - imgen_logger - INFO - Closing >> Saving latest_genio file to .imgen
