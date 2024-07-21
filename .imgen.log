@@ -1,0 +1,46 @@
+2024-07-22 00:42:10,335 - imgen_logger - INFO - API key loaded: 51 bytes
+2024-07-22 00:42:10,335 - imgen_logger - INFO - Loading latest_genio file from .imgen
+2024-07-22 00:42:10,335 - imgen_logger - WARNING - No latest_genio file found, creating a new one
+2024-07-22 01:06:47,831 - imgen_logger - INFO - API key loaded: 51 bytes
+2024-07-22 01:06:47,831 - imgen_logger - INFO - Loading latest_genio file from .imgen
+2024-07-22 01:06:47,831 - imgen_logger - WARNING - No latest_genio file found, creating a new one
+2024-07-22 01:07:55,752 - imgen_logger - INFO - API key loaded: 51 bytes
+2024-07-22 01:07:55,752 - imgen_logger - INFO - Loading latest_genio file from .imgen
+2024-07-22 01:07:55,752 - imgen_logger - WARNING - No latest_genio file found, creating a new one
+2024-07-22 01:08:58,677 - imgen_logger - INFO - API key loaded: 51 bytes
+2024-07-22 01:08:58,677 - imgen_logger - INFO - Loading latest_genio file from .imgen
+2024-07-22 01:08:58,677 - imgen_logger - WARNING - No latest_genio file found, creating a new one
+2024-07-22 01:09:24,376 - imgen_logger - INFO - API key loaded: 51 bytes
+2024-07-22 01:09:24,376 - imgen_logger - INFO - Loading latest_genio file from .imgen
+2024-07-22 01:09:24,376 - imgen_logger - WARNING - No latest_genio file found, creating a new one
+2024-07-22 01:09:33,552 - imgen_logger - INFO - Closing >> Saving latest_genio file to .imgen
+2024-07-22 01:10:49,037 - imgen_logger - INFO - API key loaded: 51 bytes
+2024-07-22 01:10:49,037 - imgen_logger - INFO - Loading latest_genio file from .imgen
+2024-07-22 01:10:49,037 - imgen_logger - WARNING - No latest_genio file found, creating a new one
+2024-07-22 01:11:38,064 - imgen_logger - INFO - API key loaded: 51 bytes
+2024-07-22 01:11:38,064 - imgen_logger - INFO - Loading latest_genio file from .imgen
+2024-07-22 01:11:38,064 - imgen_logger - WARNING - No latest_genio file found, creating a new one
+2024-07-22 01:11:58,438 - imgen_logger - INFO - API key loaded: 51 bytes
+2024-07-22 01:11:58,438 - imgen_logger - INFO - Loading latest_genio file from .imgen
+2024-07-22 01:11:58,438 - imgen_logger - WARNING - No latest_genio file found, creating a new one
+2024-07-22 01:13:19,048 - imgen_logger - INFO - API key loaded: 51 bytes
+2024-07-22 01:13:19,048 - imgen_logger - INFO - Loading latest_genio file from .imgen
+2024-07-22 01:13:19,049 - imgen_logger - WARNING - No latest_genio file found, creating a new one
+2024-07-22 01:13:57,098 - imgen_logger - INFO - API key loaded: 51 bytes
+2024-07-22 01:13:57,098 - imgen_logger - INFO - Loading latest_genio file from .imgen
+2024-07-22 01:13:57,098 - imgen_logger - WARNING - No latest_genio file found, creating a new one
+2024-07-22 01:17:04,580 - imgen_logger - INFO - API key loaded: 51 bytes
+2024-07-22 01:17:04,581 - imgen_logger - INFO - Loading latest_genio file from .imgen
+2024-07-22 01:17:04,581 - imgen_logger - WARNING - No latest_genio file found, creating a new one
+2024-07-22 01:17:10,446 - imgen_logger - INFO - Loading image from ./out/genio
+2024-07-22 01:17:20,356 - imgen_logger - INFO - API key loaded: 51 bytes
+2024-07-22 01:17:20,356 - imgen_logger - INFO - Loading latest_genio file from .imgen
+2024-07-22 01:17:20,356 - imgen_logger - WARNING - No latest_genio file found, creating a new one
+2024-07-22 01:19:08,388 - imgen_logger - INFO - API key loaded: 51 bytes
+2024-07-22 01:19:08,388 - imgen_logger - INFO - Loading latest_genio file from .imgen
+2024-07-22 01:19:08,388 - imgen_logger - WARNING - No latest_genio file found, creating a new one
+2024-07-22 01:19:47,724 - imgen_logger - INFO - API key loaded: 51 bytes
+2024-07-22 01:19:47,724 - imgen_logger - INFO - Loading latest_genio file from .imgen
+2024-07-22 01:19:47,724 - imgen_logger - WARNING - No latest_genio file found, creating a new one
+2024-07-22 01:20:03,079 - imgen_logger - INFO - Generating image with the following parameters: <gen_io.GenIO object at 0x107402de0>
+2024-07-22 01:20:03,367 - imgen_logger - ERROR - Error during image generation: HTTP 400: {"errors":["content-type: must be multipart/form-data"],"id":"b75028155794070dee5545b3a0b16857","name":"bad_request"}

@@ -1,0 +1,1 @@
+{"prompt": "camel back", "negative_prompt": "sand", "aspect_ratio": "2:3", "seed": 0, "output_format": "png", "gen_result": "HTTP 400: {\"errors\":[\"content-type: must be multipart/form-data\"],\"id\":\"774a1ce827a1df50ae28d353946bf0fb\",\"name\":\"bad_request\"}"}
