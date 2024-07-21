@@ -60,7 +60,7 @@ Do the following on the command line only, before opening VSCode
 ```
 /
 ├── imgen/
-│   ├── out/                 # Generated images
+│   ├── out/                 # Generated images default out folder
 │   ├── requirements.txt     # Project dependencies
 │   └── stability_ai_image_generator.py  # Main application
 └── venv/                    # Virtual environment

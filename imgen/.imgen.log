@@ -1,0 +1,18 @@
+2024-07-21 21:01:07,119 - imgen_logger - INFO - Saving params to test_output/test_params.json
+2024-07-21 21:01:07,119 - imgen_logger - INFO - Saving image to test_output/test_img.png
+2024-07-21 21:01:07,208 - imgen_logger - INFO - Save complete
+2024-07-21 21:01:07,208 - imgen_logger - INFO - Loading params from test_output/test_params.json
+2024-07-21 21:01:07,208 - imgen_logger - INFO - Loading image from test_output/test_img.png
+2024-07-21 21:01:07,210 - imgen_logger - INFO - Load complete
+2024-07-21 23:23:05,810 - imgen_logger - INFO - Saving params to test_output/test_params.json
+2024-07-21 23:23:05,812 - imgen_logger - INFO - Saving image to test_output/test_img.png
+2024-07-21 23:23:05,890 - imgen_logger - INFO - Save complete
+2024-07-21 23:23:05,890 - imgen_logger - INFO - Loading params from test_output/test_params.json
+2024-07-21 23:23:05,890 - imgen_logger - INFO - Loading image from test_output/test_img.png
+2024-07-21 23:23:05,890 - imgen_logger - INFO - Load complete
+2024-07-21 23:23:22,834 - imgen_logger - INFO - Saving params to test_output/test_params.json
+2024-07-21 23:23:22,834 - imgen_logger - INFO - Saving image to test_output/test_img.png
+2024-07-21 23:23:22,853 - imgen_logger - INFO - Save complete
+2024-07-21 23:23:22,853 - imgen_logger - INFO - Loading params from test_output/test_params.json
+2024-07-21 23:23:22,853 - imgen_logger - INFO - Loading image from test_output/test_img.png
+2024-07-21 23:23:22,854 - imgen_logger - INFO - Load complete

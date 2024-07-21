@@ -1,9 +1,0 @@
-
-# [2024.07.20 16:58:56] python3 -m venv venv
-
-
-# [2024.07.20 16:59:02] . venv/bin/activate
-
-
-# [2024.07.20 16:59:07] pip install -r requirements.txt
-./setup-cli.sh: line 36: pip: command not found

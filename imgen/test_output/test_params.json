@@ -1,0 +1,1 @@
+{"prompt": "Test prompt", "negative_prompt": "Test negative prompt", "aspect_ratio": "1:1", "seed": 42, "output_format": "png", "gen_result": "Test result"}
