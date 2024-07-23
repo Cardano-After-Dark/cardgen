@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, filedialog
 from PIL import Image, ImageTk
+import time
 
 class ImgGenUI:
     def __init__(self, master, gen_io, on_generate, on_save, on_load):
@@ -9,6 +10,12 @@ class ImgGenUI:
         self.on_generate = on_generate
         self.on_save = on_save
         self.on_load = on_load
+
+        # Image display
+        self.original_image = None
+        self.photo = None
+        self.last_resize_time = 0
+        self.resize_delay = 200  # milliseconds
 
         self.create_widgets()
         self.update_fields(gen_io)  # Initialize fields with current gen_io state
@@ -71,8 +78,13 @@ class ImgGenUI:
         ttk.Button(persistence_frame, text="Load", command=self.load).pack(side=tk.LEFT, padx=5)
 
         # Row 5: Output image
-        self.image_label = ttk.Label(self.master)
-        self.image_label.pack(pady=10)
+        self.image_frame = ttk.Frame(self.master)
+        self.image_frame.pack(expand=True, fill=tk.BOTH, pady=10)
+        self.image_label = ttk.Label(self.image_frame)
+        self.image_label.pack(expand=True, fill=tk.BOTH)
+
+        # Resize the image on scheduling to avoid performance issues
+        self.master.bind('<Configure>', self.schedule_resize)
 
         self.update_image()
 
@@ -124,8 +136,46 @@ class ImgGenUI:
 
     def update_image(self, image=None):
         if image:
-            photo = ImageTk.PhotoImage(image)
-            self.image_label.config(image=photo)
-            self.image_label.image = photo
+            self.original_image = image
+            self.resize_image(force=True)
         else:
+            self.original_image = None
+            self.photo = None
             self.image_label.config(image=None)
+
+    def schedule_resize(self, event=None):
+        current_time = time.time() * 1000
+        if current_time - self.last_resize_time > self.resize_delay:
+            self.last_resize_time = current_time
+            self.master.after(self.resize_delay, self.resize_image)
+
+    def resize_image(self, force=False):
+        if self.original_image:
+            # Get the current size of the frame
+            frame_width = self.image_frame.winfo_width()
+            frame_height = self.image_frame.winfo_height()
+
+            if frame_width > 1 and frame_height > 1:  # Ensure valid dimensions
+                # Calculate the scaling factor to fit the image within the frame
+                img_width, img_height = self.original_image.size
+                scale = min(frame_width/img_width, frame_height/img_height)
+                
+                new_width = int(img_width * scale)
+                new_height = int(img_height * scale)
+
+                # Only resize if the size has changed significantly or forced
+                if force or abs(new_width - getattr(self, 'last_width', 0)) > 10 or abs(new_height - getattr(self, 'last_height', 0)) > 10:
+                    self.last_width, self.last_height = new_width, new_height
+
+                    # Resize the image
+                    resized_image = self.original_image.copy()
+                    resized_image = resized_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+
+                    # Create a new PhotoImage object
+                    self.photo = ImageTk.PhotoImage(resized_image)
+
+                    # Update the label with the new image
+                    self.image_label.config(image=self.photo)
+                    
+                    # Center the image
+                    self.image_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
