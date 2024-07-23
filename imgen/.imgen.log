@@ -16,3 +16,6 @@
 2024-07-21 23:23:22,853 - imgen_logger - INFO - Loading params from test_output/test_params.json
 2024-07-21 23:23:22,853 - imgen_logger - INFO - Loading image from test_output/test_img.png
 2024-07-21 23:23:22,854 - imgen_logger - INFO - Load complete
+2024-07-23 19:28:09,146 - imgen_logger - INFO - API key loaded: 51 bytes
+2024-07-23 19:28:09,146 - imgen_logger - INFO - Loading latest_genio file from .imgen
+2024-07-23 19:28:09,146 - imgen_logger - WARNING - No latest_genio file found, creating a new one

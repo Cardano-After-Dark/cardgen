@@ -19,6 +19,7 @@ class StabilityImGen:
 
         self.gen_io = self.load_latest_gen_io()
         self.ui = ImgGenUI(self.root, self.gen_io, self.generate, self.save, self.load)
+        self.ui.update_fields(self.gen_io)  # Update UI with loaded state
 
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.root.mainloop()
@@ -26,7 +27,9 @@ class StabilityImGen:
     def load_latest_gen_io(self):
         try:
             log.info("Loading latest_genio file from .imgen")
-            return GenIO.load(".imgen", "latest_genio")
+            loaded_gen_io = GenIO.load(".imgen", "latest_genio")
+            log.info(f"Loaded GenIO: {loaded_gen_io}")
+            return loaded_gen_io
         except FileNotFoundError:
             log.warning("No latest_genio file found, creating a new one")
             return GenIO()
@@ -56,11 +59,14 @@ class StabilityImGen:
 
     def load(self, folder, prefix):
         log.info(f"Loading image from {folder}/{prefix}")
-        return GenIO.load(folder, prefix)
+        loaded_gen_io = GenIO.load(folder, prefix)
+        self.gen_io = loaded_gen_io
+        self.ui.update_fields(loaded_gen_io)
+        return loaded_gen_io
 
     def on_closing(self):
         log.info("Closing >> Saving latest_genio file to .imgen")
-        self.gen_io.save(".imgen", "latest_genio")
+        self.save(".imgen", "latest_genio")
         self.root.destroy()
 
 if __name__ == "__main__":

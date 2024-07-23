@@ -11,6 +11,7 @@ class ImgGenUI:
         self.on_load = on_load
 
         self.create_widgets()
+        self.update_fields(gen_io)  # Initialize fields with current gen_io state
 
     def create_widgets(self):
         # Row 1: Header
@@ -110,19 +111,20 @@ class ImgGenUI:
         self.update_fields()
         self.update_image()
 
-    def update_fields(self):
+    def update_fields(self, gen_io):
         self.prompt_entry.delete(0, tk.END)
-        self.prompt_entry.insert(0, self.gen_io.prompt)
+        self.prompt_entry.insert(0, gen_io.prompt)
         self.negative_prompt_entry.delete(0, tk.END)
-        self.negative_prompt_entry.insert(0, self.gen_io.negative_prompt)
-        self.aspect_ratio_var.set(self.gen_io.aspect_ratio)
+        self.negative_prompt_entry.insert(0, gen_io.negative_prompt)
+        self.aspect_ratio_var.set(gen_io.aspect_ratio)
         self.seed_entry.delete(0, tk.END)
-        self.seed_entry.insert(0, str(self.gen_io.seed))
-        self.output_format_var.set(self.gen_io.output_format)
+        self.seed_entry.insert(0, str(gen_io.seed))
+        self.output_format_var.set(gen_io.output_format)
+        self.update_image(gen_io.gen_image)
 
-    def update_image(self):
-        if self.gen_io.gen_image:
-            photo = ImageTk.PhotoImage(self.gen_io.gen_image)
+    def update_image(self, image=None):
+        if image:
+            photo = ImageTk.PhotoImage(image)
             self.image_label.config(image=photo)
             self.image_label.image = photo
         else:
