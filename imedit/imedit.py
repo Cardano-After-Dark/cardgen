@@ -15,6 +15,46 @@ class CardGeneratorInput:
     suit_images: Dict[str, Image.Image] = field(default_factory=dict)
     font: ImageFont.FreeTypeFont = None
 
+    def validate_input(self) -> bool:
+        input_folder_full_path = os.path.abspath(self.input_folder)
+        missing_files = []
+
+        for file_pattern in CardGeneratorConstants.MANDATORY_FILES:
+            if not glob.glob(os.path.join(self.input_folder, file_pattern)):
+                missing_files.append(file_pattern)
+
+        if missing_files:
+            print(f"Missing input files: {', '.join(missing_files)} in folder {input_folder_full_path}")
+            return False
+
+        if not os.path.exists(self.output_folder):
+            try:
+                os.makedirs(self.output_folder)
+            except OSError:
+                print(f"Failed to create output folder: {self.output_folder}")
+                return False
+
+        if not 1 <= self.n_card_gen <= 52:
+            print(f"Invalid number of cards to generate: {self.n_card_gen}. Must be between 1 and 52.")
+            return False
+
+        return True
+
+    def initialize_assets(self):
+        def load_last_image(pattern):
+            images = sorted(glob.glob(os.path.join(self.input_folder, pattern)))
+            return Image.open(images[-1])
+
+        self.back_image = load_last_image("im-back*.png").resize(CardGeneratorConstants.HALF_CARD_SIZE)
+        self.front_image = load_last_image("im-front*.png").resize(CardGeneratorConstants.HALF_CARD_SIZE)
+        
+        for suit in CardGeneratorConstants.SUITS:
+            self.suit_images[suit] = load_last_image(f"suit-{suit}*.png").resize(CardGeneratorConstants.SUIT_SIZE)
+
+        font_files = sorted(glob.glob(os.path.join(self.input_folder, "*.ttf")))
+        print(f"Available fonts: {', '.join(os.path.basename(f) for f in font_files)}")
+        self.font = ImageFont.truetype(font_files[-1], size=CardGeneratorConstants.FONT_SIZE)
+
 class CardGeneratorConstants:
     MANDATORY_FILES = [
         "im-back*.png", "im-front*.png",
@@ -31,42 +71,8 @@ class CardGeneratorConstants:
 class PokerCardGenerator:
     def __init__(self, input_data: CardGeneratorInput):
         self.input_data = input_data
-        self.input_folder_full_path = os.path.abspath(input_data.input_folder)
 
     def generate_cards(self):
-        if not self._check_mandatory_files():
-            return
-
-        self._load_assets()
-        self._generate_card_images()
-
-    def _check_mandatory_files(self) -> bool:
-        missing_files = []
-        for file_pattern in CardGeneratorConstants.MANDATORY_FILES:
-            if not glob.glob(os.path.join(self.input_data.input_folder, file_pattern)):
-                missing_files.append(file_pattern)
-
-        if missing_files:
-            print(f"Missing input files: {', '.join(missing_files)} in folder {self.input_folder_full_path}")
-            return False
-        return True
-
-    def _load_assets(self):
-        def load_last_image(pattern):
-            images = sorted(glob.glob(os.path.join(self.input_data.input_folder, pattern)))
-            return Image.open(images[-1])
-
-        self.input_data.back_image = load_last_image("im-back*.png").resize(CardGeneratorConstants.HALF_CARD_SIZE)
-        self.input_data.front_image = load_last_image("im-front*.png").resize(CardGeneratorConstants.HALF_CARD_SIZE)
-        
-        for suit in CardGeneratorConstants.SUITS:
-            self.input_data.suit_images[suit] = load_last_image(f"suit-{suit}*.png").resize(CardGeneratorConstants.SUIT_SIZE)
-
-        font_files = sorted(glob.glob(os.path.join(self.input_data.input_folder, "*.ttf")))
-        print(f"Available fonts: {', '.join(os.path.basename(f) for f in font_files)}")
-        self.input_data.font = ImageFont.truetype(font_files[-1], size=CardGeneratorConstants.FONT_SIZE)
-
-    def _generate_card_images(self):
         card_count = 0
 
         for suit in CardGeneratorConstants.SUITS:
@@ -104,8 +110,12 @@ input_data = CardGeneratorInput(
     input_folder="assets/input1",
     output_folder="out/deck1",
     prefix_string="poker_card",
-    n_card_gen=14
+    n_card_gen=15
 )
 
-generator = PokerCardGenerator(input_data)
-generator.generate_cards()
+if input_data.validate_input():
+    input_data.initialize_assets()
+    generator = PokerCardGenerator(input_data)
+    generator.generate_cards()
+else:
+    print("Input validation failed. Please check your input and try again.")
