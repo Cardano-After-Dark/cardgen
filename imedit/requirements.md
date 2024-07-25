@@ -40,6 +40,7 @@ The program does the following:
 
 
 ----
+see this: https://www.mattgyver.com/tutorials/2022/3/14/playing-card-deck-design-tips
 
 
 

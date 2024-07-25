@@ -1,8 +1,10 @@
 import os
 import glob
 from dataclasses import dataclass, field
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from PIL import Image, ImageDraw, ImageFont
+import numpy as np
+import cv2
 
 @dataclass
 class CardGeneratorInput:
@@ -45,11 +47,50 @@ class CardGeneratorInput:
             images = sorted(glob.glob(os.path.join(self.input_folder, pattern)))
             return Image.open(images[-1])
 
+        def extract_suit(image):
+            # Convert PIL Image to OpenCV format
+            cv_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+            
+            # Convert to grayscale
+            gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
+            
+            # Apply threshold to get binary image
+            _, binary = cv2.threshold(gray, 250, 255, cv2.THRESH_BINARY_INV)
+            
+            # Find contours
+            contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            
+            # Find the largest contour (assuming it's the suit)
+            largest_contour = max(contours, key=cv2.contourArea)
+            
+            # Create mask
+            mask = np.zeros(gray.shape, np.uint8)
+            cv2.drawContours(mask, [largest_contour], 0, 255, -1)
+            
+            # Extract suit
+            result = cv2.bitwise_and(cv_image, cv_image, mask=mask)
+            
+            # Convert back to PIL Image with transparency
+            result_rgba = cv2.cvtColor(result, cv2.COLOR_BGR2RGBA)
+            result_rgba[:, :, 3] = mask
+            
+            return Image.fromarray(result_rgba)
+
         self.back_image = load_last_image("im-back*.png").resize(CardGeneratorConstants.HALF_CARD_SIZE)
         self.front_image = load_last_image("im-front*.png").resize(CardGeneratorConstants.HALF_CARD_SIZE)
         
         for suit in CardGeneratorConstants.SUITS:
-            self.suit_images[suit] = load_last_image(f"suit-{suit}*.png").resize(CardGeneratorConstants.SUIT_SIZE)
+            suit_image = load_last_image(f"suit-{suit}*.png")
+            extracted_suit = extract_suit(suit_image)
+            
+            # Create a new transparent image and paste the extracted suit
+            transparent_image = Image.new('RGBA', CardGeneratorConstants.SUIT_SIZE, (0, 0, 0, 0))
+            suit_width, suit_height = extracted_suit.size
+            paste_x = (CardGeneratorConstants.SUIT_SIZE[0] - suit_width) // 2
+            paste_y = (CardGeneratorConstants.SUIT_SIZE[1] - suit_height) // 2
+            transparent_image.paste(extracted_suit, (paste_x, paste_y), extracted_suit)
+            
+            self.suit_images[suit] = transparent_image
 
         font_files = sorted(glob.glob(os.path.join(self.input_folder, "*.ttf")))
         print(f"Available fonts: {', '.join(os.path.basename(f) for f in font_files)}")
@@ -66,14 +107,37 @@ class CardGeneratorConstants:
     CARD_SIZE = (2496, 1872)
     HALF_CARD_SIZE = (1248, 1872)
     SUIT_SIZE = (500, 500)
-    FONT_SIZE = 100
+    FONT_SIZE = 200
 
 class PokerCardGenerator:
     def __init__(self, input_data: CardGeneratorInput):
         self.input_data = input_data
 
+    def create_stacked_value_suit(self, value: str, suit: str, font: ImageFont.FreeTypeFont, color: str) -> Image.Image:
+        # Create a new image with RGBA mode (for transparency)
+        img_size = (font.size * 2, font.size * 3)  # Adjust size as needed
+        img = Image.new('RGBA', img_size, (255, 255, 255, 0))
+        draw = ImageDraw.Draw(img)
+
+        # Draw the value
+        value_bbox = draw.textbbox((0, 0), value, font=font)
+        value_width = value_bbox[2] - value_bbox[0]
+        value_height = value_bbox[3] - value_bbox[1]
+        value_position = ((img_size[0] - value_width) // 2, 0)
+        draw.text(value_position, value, font=font, fill=color)
+
+        # Resize and draw the suit
+        suit_image = self.input_data.suit_images[suit].copy()
+        suit_image = suit_image.resize((value_width, value_width), Image.LANCZOS)
+        suit_position = ((img_size[0] - value_width) // 2, value_height + font.size // 2)
+        img.paste(suit_image, suit_position, suit_image)
+
+        return img
+
     def generate_cards(self):
         card_count = 0
+
+        suit_abbreviations = {'heart': 'H', 'diamond': 'D', 'club': 'C', 'spades': 'S'}
 
         for suit in CardGeneratorConstants.SUITS:
             for value in CardGeneratorConstants.VALUES:
@@ -82,19 +146,28 @@ class PokerCardGenerator:
 
                 canvas = Image.new('RGB', CardGeneratorConstants.CARD_SIZE)
                 front = self.input_data.front_image.copy()
-                draw = ImageDraw.Draw(front)
-
+                
                 color = 'red' if suit in ['heart', 'diamond'] else 'black'
-                draw.text((50, 50), f"{value}\n{suit[0].upper()}", font=self.input_data.font, fill=color)
-                draw.text((1198, 1822), f"{value}\n{suit[0].upper()}", font=self.input_data.font, fill=color, anchor="rs")
+                
+                # Create stacked value-suit for top-left
+                stacked_image_top = self.create_stacked_value_suit(value, suit, self.input_data.font, color)
+                front.paste(stacked_image_top, (50, 50), stacked_image_top)
+                
+                # Create stacked value-suit for bottom-right (rotated 180 degrees)
+                stacked_image_bottom = self.create_stacked_value_suit(value, suit, self.input_data.font, color)
+                stacked_image_bottom = stacked_image_bottom.rotate(180)
+                front.paste(stacked_image_bottom, (1198 - stacked_image_bottom.width, 1822 - stacked_image_bottom.height), stacked_image_bottom)
 
+                # Add the large central suit image
                 suit_image = self.input_data.suit_images[suit]
                 front.paste(suit_image, (374, 686), suit_image)
 
                 canvas.paste(front, (0, 0))
                 canvas.paste(self.input_data.back_image, (1248, 0))
 
-                filename = f"{self.input_data.prefix_string}_{card_count+1:02d}_{suit}_{value}.png"
+                # New naming convention
+                suit_abbr = suit_abbreviations[suit]
+                filename = f"{self.input_data.prefix_string}_{card_count+1:02d}_{value}_{suit_abbr}.png"
                 canvas.save(os.path.join(self.input_data.output_folder, filename))
                 print(f"Generated: {filename}")
 
@@ -110,7 +183,7 @@ input_data = CardGeneratorInput(
     input_folder="assets/input1",
     output_folder="out/deck1",
     prefix_string="poker_card",
-    n_card_gen=15
+    n_card_gen=10
 )
 
 if input_data.validate_input():
