@@ -5,6 +5,24 @@ from typing import Dict, List, Tuple
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import cv2
+from scipy import interpolate
+
+
+class CardGeneratorConstants:
+    MANDATORY_FILES = [
+        "im-back*.png", "im-front*.png",
+        "suit-heart*.png", "suit-diamond*.png", "suit-club*.png", "suit-spades*.png",
+        "*.ttf"
+    ]
+    SUITS = ['heart', 'diamond', 'club', 'spades']
+    VALUES = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+    CARD_SIZE = (2496, 1872)
+    HALF_CARD_SIZE = (1248, 1872)
+    SUIT_SIZE = (700, 700)
+    FONT_SIZE = 200
+    RED_COLOR = (255, 0, 255)  # RGB for red
+    BLACK_COLOR = (60, 60, 60)  # RGB for black
+    SMOOTHNESS = 0.0001  # Suit contour smoothness (0.01 to 0.05 is a good range)
 
 @dataclass
 class CardGeneratorInput:
@@ -16,6 +34,8 @@ class CardGeneratorInput:
     front_image: Image.Image = None
     suit_images: Dict[str, Image.Image] = field(default_factory=dict)
     font: ImageFont.FreeTypeFont = None
+    smoothness: float = CardGeneratorConstants.SMOOTHNESS
+    curve_smoothness: int = 100  # Number of points for Bézier curve interpolation
 
     def validate_input(self) -> bool:
         input_folder_full_path = os.path.abspath(self.input_folder)
@@ -47,7 +67,7 @@ class CardGeneratorInput:
             images = sorted(glob.glob(os.path.join(self.input_folder, pattern)))
             return Image.open(images[-1])
 
-        def extract_suit(image):
+        def extract_suit(image, suit):
             # Convert PIL Image to OpenCV format
             cv_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
             
@@ -63,51 +83,50 @@ class CardGeneratorInput:
             # Find the largest contour (assuming it's the suit)
             largest_contour = max(contours, key=cv2.contourArea)
             
-            # Create mask
-            mask = np.zeros(gray.shape, np.uint8)
-            cv2.drawContours(mask, [largest_contour], 0, 255, -1)
+            # Simplify the contour
+            epsilon = 0.005 * cv2.arcLength(largest_contour, True)
+            approx_contour = cv2.approxPolyDP(largest_contour, epsilon, True)
             
-            # Extract suit
-            result = cv2.bitwise_and(cv_image, cv_image, mask=mask)
+            # Convert to numpy array and reshape
+            points = approx_contour.reshape(-1, 2)
             
-            # Convert back to PIL Image with transparency
-            result_rgba = cv2.cvtColor(result, cv2.COLOR_BGR2RGBA)
-            result_rgba[:, :, 3] = mask
+            # Create a periodic spline
+            tck, u = interpolate.splprep([points[:, 0], points[:, 1]], s=0, per=True)
             
-            return Image.fromarray(result_rgba)
+            # Generate new points along the spline
+            new_points = interpolate.splev(np.linspace(0, 1, self.curve_smoothness), tck)
+            
+            # Scale and translate the points
+            x, y, w, h = cv2.boundingRect(approx_contour)
+            scale = min(CardGeneratorConstants.SUIT_SIZE[0] / w, CardGeneratorConstants.SUIT_SIZE[1] / h)
+            translate_x = (CardGeneratorConstants.SUIT_SIZE[0] - w * scale) / 2 - x * scale
+            translate_y = (CardGeneratorConstants.SUIT_SIZE[1] - h * scale) / 2 - y * scale
+            
+            scaled_points = [(p[0] * scale + translate_x, p[1] * scale + translate_y) for p in zip(*new_points)]
+            
+            # Create a new image with transparent background
+            new_img = Image.new('RGBA', CardGeneratorConstants.SUIT_SIZE, (0, 0, 0, 0))
+            draw = ImageDraw.Draw(new_img)
+            
+            # Draw and fill the contour
+            color = CardGeneratorConstants.RED_COLOR if suit in ['heart', 'diamond'] else CardGeneratorConstants.BLACK_COLOR
+            draw.polygon(scaled_points, fill=color, outline=color)
+            
+            return new_img
 
         self.back_image = load_last_image("im-back*.png").resize(CardGeneratorConstants.HALF_CARD_SIZE)
         self.front_image = load_last_image("im-front*.png").resize(CardGeneratorConstants.HALF_CARD_SIZE)
         
         for suit in CardGeneratorConstants.SUITS:
             suit_image = load_last_image(f"suit-{suit}*.png")
-            extracted_suit = extract_suit(suit_image)
-            
-            # Create a new transparent image and paste the extracted suit
-            transparent_image = Image.new('RGBA', CardGeneratorConstants.SUIT_SIZE, (0, 0, 0, 0))
-            suit_width, suit_height = extracted_suit.size
-            paste_x = (CardGeneratorConstants.SUIT_SIZE[0] - suit_width) // 2
-            paste_y = (CardGeneratorConstants.SUIT_SIZE[1] - suit_height) // 2
-            transparent_image.paste(extracted_suit, (paste_x, paste_y), extracted_suit)
-            
-            self.suit_images[suit] = transparent_image
+            self.suit_images[suit] = extract_suit(suit_image, suit)
 
         font_files = sorted(glob.glob(os.path.join(self.input_folder, "*.ttf")))
         print(f"Available fonts: {', '.join(os.path.basename(f) for f in font_files)}")
         self.font = ImageFont.truetype(font_files[-1], size=CardGeneratorConstants.FONT_SIZE)
 
-class CardGeneratorConstants:
-    MANDATORY_FILES = [
-        "im-back*.png", "im-front*.png",
-        "suit-heart*.png", "suit-diamond*.png", "suit-club*.png", "suit-spades*.png",
-        "*.ttf"
-    ]
-    SUITS = ['heart', 'diamond', 'club', 'spades']
-    VALUES = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
-    CARD_SIZE = (2496, 1872)
-    HALF_CARD_SIZE = (1248, 1872)
-    SUIT_SIZE = (500, 500)
-    FONT_SIZE = 200
+
+
 
 class PokerCardGenerator:
     def __init__(self, input_data: CardGeneratorInput):
@@ -147,7 +166,7 @@ class PokerCardGenerator:
                 canvas = Image.new('RGB', CardGeneratorConstants.CARD_SIZE)
                 front = self.input_data.front_image.copy()
                 
-                color = 'red' if suit in ['heart', 'diamond'] else 'black'
+                color = CardGeneratorConstants.RED_COLOR if suit in ['heart', 'diamond'] else CardGeneratorConstants.BLACK_COLOR
                 
                 # Create stacked value-suit for top-left
                 stacked_image_top = self.create_stacked_value_suit(value, suit, self.input_data.font, color)
@@ -159,8 +178,12 @@ class PokerCardGenerator:
                 front.paste(stacked_image_bottom, (1198 - stacked_image_bottom.width, 1822 - stacked_image_bottom.height), stacked_image_bottom)
 
                 # Add the large central suit image
-                suit_image = self.input_data.suit_images[suit]
-                front.paste(suit_image, (374, 686), suit_image)
+                suit_image = self.input_data.suit_images[suit].copy()
+                central_suit_size = (500, 500)  # Adjust this size as needed
+                suit_image = suit_image.resize(central_suit_size, Image.LANCZOS)
+                suit_position = ((CardGeneratorConstants.HALF_CARD_SIZE[0] - central_suit_size[0]) // 2,
+                                 (CardGeneratorConstants.HALF_CARD_SIZE[1] - central_suit_size[1]) // 2)
+                front.paste(suit_image, suit_position, suit_image)
 
                 canvas.paste(front, (0, 0))
                 canvas.paste(self.input_data.back_image, (1248, 0))
@@ -183,7 +206,7 @@ input_data = CardGeneratorInput(
     input_folder="assets/input1",
     output_folder="out/deck1",
     prefix_string="poker_card",
-    n_card_gen=10
+    n_card_gen=3
 )
 
 if input_data.validate_input():
