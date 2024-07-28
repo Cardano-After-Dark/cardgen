@@ -163,36 +163,7 @@ class PokerCardGenerator:
                 if card_count >= self.input_data.n_card_gen:
                     break
 
-                canvas = Image.new('RGB', CardGeneratorConstants.CARD_SIZE)
-                front = self.input_data.front_image.copy()
-                
-                color = CardGeneratorConstants.RED_COLOR if suit in ['heart', 'diamond'] else CardGeneratorConstants.BLACK_COLOR
-                
-                # Create stacked value-suit for top-left
-                stacked_image_top = self.create_stacked_value_suit(value, suit, self.input_data.font, color)
-                front.paste(stacked_image_top, (50, 50), stacked_image_top)
-                
-                # Create stacked value-suit for bottom-right (rotated 180 degrees)
-                stacked_image_bottom = self.create_stacked_value_suit(value, suit, self.input_data.font, color)
-                stacked_image_bottom = stacked_image_bottom.rotate(180)
-                front.paste(stacked_image_bottom, (1198 - stacked_image_bottom.width, 1822 - stacked_image_bottom.height), stacked_image_bottom)
-
-                # Add the large central suit image
-                suit_image = self.input_data.suit_images[suit].copy()
-                central_suit_size = (500, 500)  # Adjust this size as needed
-                suit_image = suit_image.resize(central_suit_size, Image.LANCZOS)
-                suit_position = ((CardGeneratorConstants.HALF_CARD_SIZE[0] - central_suit_size[0]) // 2,
-                                 (CardGeneratorConstants.HALF_CARD_SIZE[1] - central_suit_size[1]) // 2)
-                front.paste(suit_image, suit_position, suit_image)
-
-                canvas.paste(front, (0, 0))
-                canvas.paste(self.input_data.back_image, (1248, 0))
-
-                # New naming convention
-                suit_abbr = suit_abbreviations[suit]
-                filename = f"{self.input_data.prefix_string}_{card_count+1:02d}_{value}_{suit_abbr}.png"
-                canvas.save(os.path.join(self.input_data.output_folder, filename))
-                print(f"Generated: {filename}")
+                self.generate_card_image(card_count, suit_abbreviations, suit, value)
 
                 card_count += 1
 
@@ -200,6 +171,38 @@ class PokerCardGenerator:
                 break
 
         print(f"Generated {card_count} cards.")
+
+    def generate_card_image(self, card_count, suit_abbreviations, suit, value):
+        canvas = Image.new('RGB', CardGeneratorConstants.CARD_SIZE)
+        front = self.input_data.front_image.copy()
+                
+        color = CardGeneratorConstants.RED_COLOR if suit in ['heart', 'diamond'] else CardGeneratorConstants.BLACK_COLOR
+                
+                # Create stacked value-suit for top-left
+        stacked_image_top = self.create_stacked_value_suit(value, suit, self.input_data.font, color)
+        front.paste(stacked_image_top, (50, 50), stacked_image_top)
+                
+                # Create stacked value-suit for bottom-right (rotated 180 degrees)
+        stacked_image_bottom = self.create_stacked_value_suit(value, suit, self.input_data.font, color)
+        stacked_image_bottom = stacked_image_bottom.rotate(180)
+        front.paste(stacked_image_bottom, (1198 - stacked_image_bottom.width, 1822 - stacked_image_bottom.height), stacked_image_bottom)
+
+                # Add the large central suit image
+        suit_image = self.input_data.suit_images[suit].copy()
+        central_suit_size = (500, 500)  # Adjust this size as needed
+        suit_image = suit_image.resize(central_suit_size, Image.LANCZOS)
+        suit_position = ((CardGeneratorConstants.HALF_CARD_SIZE[0] - central_suit_size[0]) // 2,
+                                 (CardGeneratorConstants.HALF_CARD_SIZE[1] - central_suit_size[1]) // 2)
+        front.paste(suit_image, suit_position, suit_image)
+
+        canvas.paste(front, (0, 0))
+        canvas.paste(self.input_data.back_image, (1248, 0))
+
+                # New naming convention
+        suit_abbr = suit_abbreviations[suit]
+        filename = f"{self.input_data.prefix_string}_{card_count+1:02d}_{value}_{suit_abbr}.png"
+        canvas.save(os.path.join(self.input_data.output_folder, filename))
+        print(f"Generated: {filename}")
 
 # Example usage
 input_data = CardGeneratorInput(
