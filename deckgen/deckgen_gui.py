@@ -8,6 +8,7 @@ from typing import Dict, Any
 import os
 from PIL import Image, ImageTk
 from deckgen import DeckGen, get_image_module
+import yaml
 
 from deckgen import DeckGen  # Import the DeckGen class we just created
 
@@ -17,8 +18,14 @@ class DeckGenGui:
         self.deckgen = DeckGen()  # Create an instance of DeckGen
         self.preview_window = None  # store preview window reference
 
-        self.style = ttk.Style(theme="cosmo")  # "darkly" or "cosmo"
+        self.style = ttk.Style(theme="darkly")  # "darkly" or "cosmo"
         master.title("Deck Generator")
+
+        # # Set the font size
+        # default_font = tk.font.nametofont("TkDefaultFont")
+        # default_font.configure(size=16)  # You can adjust this size as needed
+        
+        # self.style.configure('.', font=default_font)
 
         # Set the initial size of the window
         window_width = 500
@@ -86,7 +93,8 @@ class DeckGenGui:
         parent.grid_columnconfigure(2, weight=0)
 
     def create_params_section(self, parent):
-        self.params_text = scrolledtext.ScrolledText(parent, wrap=tk.WORD, height=10)
+        params_font = tk.font.Font( size=14)  # Custom font for the params text
+        self.params_text = scrolledtext.ScrolledText(parent, wrap=tk.WORD, height=10, font=params_font)
         self.params_text.grid(row=0, column=0, sticky="nsew")
         parent.grid_rowconfigure(0, weight=1)
         parent.grid_columnconfigure(0, weight=1)
@@ -128,11 +136,14 @@ class DeckGenGui:
             self.update_deckgen_params()
 
     def load_parameters(self):
-        file_path = filedialog.askopenfilename(initialdir=os.getcwd(), filetypes=[("JSON files", "*.json")])
+        file_path = filedialog.askopenfilename(
+            initialdir=os.getcwd(),
+            filetypes=[("YAML files", "*.yaml"), ("YAML files", "*.yml")]
+        )
         if file_path:
             try:
                 with open(file_path, 'r') as f:
-                    data = json.load(f)
+                    data = yaml.safe_load(f)
                 self.deckgen.loadParams(data)
                 self.update_gui_from_app()
                 self.log("Parameters loaded successfully")
@@ -143,16 +154,16 @@ class DeckGenGui:
     def save_parameters(self):
         self.update_deckgen_params()
         file_path = filedialog.asksaveasfilename(
-            initialdir=os.getcwd(), 
-            defaultextension=".json", 
-            filetypes=[("JSON files", "*.json")],
-            initialfile="deckgen_conf.json"  # Set the default filename
+            initialdir=os.getcwd(),
+            defaultextension=".yaml",
+            filetypes=[("YAML files", "*.yaml"), ("YAML files", "*.yml")],
+            initialfile="deckgen_conf.yaml"  # default yaml config
         )
         if file_path:
             try:
                 with open(file_path, 'w') as f:
-                    json.dump(self.deckgen.parameters, f, indent=2)
-                self.log("Parameters saved successfully")
+                    yaml.dump(self.deckgen.parameters, f, default_flow_style=False)
+                self.log(f"Parameters saved successfully to {file_path}")
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to save parameters: {str(e)}")
                 self.log(f"Error saving parameters: {str(e)}")
@@ -229,11 +240,11 @@ class DeckGenGui:
             self.log(f"Error generating deck: {str(e)}")
 
     def load_startup_config(self):
-        config_path = os.path.join(os.getcwd(), "deckgen_conf.json")
+        config_path = os.path.join(os.getcwd(), "deckgen_conf.yaml")
         if os.path.exists(config_path):
             try:
                 with open(config_path, 'r') as f:
-                    data = json.load(f)
+                    data = yaml.safe_load(f)
                 self.deckgen.loadParams(data)
                 self.update_gui_from_app()
                 self.log("Startup configuration loaded successfully")
@@ -246,15 +257,16 @@ class DeckGenGui:
             getattr(self, f"{attr}_entry").delete(0, tk.END)
             getattr(self, f"{attr}_entry").insert(0, self.deckgen.parameters[attr])
         self.params_text.delete('1.0', tk.END)
-        self.params_text.insert(tk.END, json.dumps(self.deckgen.parameters['app_params'], indent=2))
+        yaml_string = yaml.dump(self.deckgen.parameters['app_params'], default_flow_style=False)
+        self.params_text.insert(tk.END, yaml_string)
 
     def update_deckgen_params(self):
         for attr in ['input_folder', 'output_folder', 'prefix_string']:
             self.deckgen.parameters[attr] = getattr(self, f"{attr}_entry").get()
         try:
-            self.deckgen.parameters['app_params'] = json.loads(self.params_text.get('1.0', tk.END))
-        except json.JSONDecodeError:
-            messagebox.showerror("Error", "Invalid JSON in params section")
+            self.deckgen.parameters['app_params'] = yaml.safe_load(self.params_text.get('1.0', tk.END))
+        except yaml.YAMLError as e:
+            messagebox.showerror("Error", f"Invalid YAML in params section: {str(e)}")
             return
 
         try:

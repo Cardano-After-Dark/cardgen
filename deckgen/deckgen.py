@@ -7,6 +7,20 @@ from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import cv2
 from scipy import interpolate
+import yaml
+
+DEFAULT_CONFIG = """
+input_folder: "assets/input1"
+output_folder: "out/deck1"
+prefix_string: "poker_card"
+app_params:
+  Design:
+    Preview index: 42
+    card value margin: 10
+    card value padding: 10
+    main suit scale: 1
+    main face scale: 1
+"""
 
 class CardConstants:
     MANDATORY_FILES = [
@@ -128,18 +142,7 @@ class CardGeneratorInput:
 class DeckGen:
     """Initialize class with given parameters or default values."""
     def __init__(self, parameters=None):
-        self.parameters = parameters or {
-            "input_folder": "assets/input1",
-            "output_folder": "out/deck1",
-            "prefix_string": "poker_card",
-            "app_params": {
-                "Design": {
-                    "Preview index": 42,
-                    "Outer border": 10,
-                    "Inner border": 400
-                }
-            }
-        }
+        self.parameters = parameters or yaml.safe_load(DEFAULT_CONFIG)
         self.input_data = None
         self.generator = None
 
