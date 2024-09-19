@@ -4,7 +4,9 @@ import tkinter as tk
 from tkinter import messagebox
 from deck_gen_data import DeckGenData
 from deck_gen_gui import DeckGenGui
-from logger import log
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class DeckGenController:
     def __init__(self, root):
@@ -12,13 +14,13 @@ class DeckGenController:
         self.view = DeckGenGui(root, self.model)
         
         # Connect GUI actions to controller methods
-        self.view.load = self.load
-        self.view.save = self.save
-        self.view.preview = self.preview
-        self.view.generate = self.generate
+        self.view.load_parameters = self.load
+        self.view.save_parameters = self.save
+        self.view.preview_deck = self.preview
+        self.view.generate_deck = self.generate
 
     def log(self, message):
-        log(message)
+        logging.info(message)
         self.view.log(message)
 
     def load(self):
@@ -50,3 +52,8 @@ class DeckGenController:
 
     def generate(self):
         self.log(f"[INFO] Generated deck {self.model.prefix_string} into {self.model.output_folder}")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = DeckGenController(root)
+    root.mainloop()

@@ -19,3 +19,6 @@
 2024-07-23 19:28:09,146 - imgen_logger - INFO - API key loaded: 51 bytes
 2024-07-23 19:28:09,146 - imgen_logger - INFO - Loading latest_genio file from .imgen
 2024-07-23 19:28:09,146 - imgen_logger - WARNING - No latest_genio file found, creating a new one
+2024-09-19 10:44:37,601 - imgen_logger - INFO - API key loaded: 51 bytes
+2024-09-19 10:44:37,601 - imgen_logger - INFO - Loading latest_genio file from .imgen
+2024-09-19 10:44:37,601 - imgen_logger - WARNING - No latest_genio file found, creating a new one
