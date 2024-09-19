@@ -48,7 +48,8 @@ class DeckGenGui:
 
         self.create_sections()
 
-        # Initialize GUI with default values
+        # load configuration and initialize GUI
+        self.load_startup_config()
         self.update_gui_from_app()
     
     def create_sections(self):
@@ -119,14 +120,15 @@ class DeckGenGui:
         self.select_folder('output_folder_entry')
 
     def select_folder(self, entry_name):
-        folder = filedialog.askdirectory()
+        folder = filedialog.askdirectory(initialdir=os.getcwd())
+        folder = os.path.relpath(folder, os.getcwd()) # Get the relative path
         if folder:
             getattr(self, entry_name).delete(0, tk.END)
             getattr(self, entry_name).insert(0, folder)
             self.update_deckgen_params()
 
     def load_parameters(self):
-        file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
+        file_path = filedialog.askopenfilename(initialdir=os.getcwd(), filetypes=[("JSON files", "*.json")])
         if file_path:
             try:
                 with open(file_path, 'r') as f:
@@ -140,7 +142,12 @@ class DeckGenGui:
 
     def save_parameters(self):
         self.update_deckgen_params()
-        file_path = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
+        file_path = filedialog.asksaveasfilename(
+            initialdir=os.getcwd(), 
+            defaultextension=".json", 
+            filetypes=[("JSON files", "*.json")],
+            initialfile="deckgen_conf.json"  # Set the default filename
+        )
         if file_path:
             try:
                 with open(file_path, 'w') as f:
@@ -221,6 +228,19 @@ class DeckGenGui:
             messagebox.showerror("Error", f"Failed to generate deck: {str(e)}")
             self.log(f"Error generating deck: {str(e)}")
 
+    def load_startup_config(self):
+        config_path = os.path.join(os.getcwd(), "deckgen_conf.json")
+        if os.path.exists(config_path):
+            try:
+                with open(config_path, 'r') as f:
+                    data = json.load(f)
+                self.deckgen.loadParams(data)
+                self.update_gui_from_app()
+                self.log("Startup configuration loaded successfully")
+            except Exception as e:
+                messagebox.showwarning("Warning", f"Failed to load startup configuration: {str(e)}")
+                self.log(f"Error loading startup configuration: {str(e)}")
+
     def update_gui_from_app(self):
         for attr in ['input_folder', 'output_folder', 'prefix_string']:
             getattr(self, f"{attr}_entry").delete(0, tk.END)
@@ -235,7 +255,14 @@ class DeckGenGui:
             self.deckgen.parameters['app_params'] = json.loads(self.params_text.get('1.0', tk.END))
         except json.JSONDecodeError:
             messagebox.showerror("Error", "Invalid JSON in params section")
-        self.deckgen.loadParams(self.deckgen.parameters)
+            return
+
+        try:
+            self.deckgen.loadParams(self.deckgen.parameters)
+        except Exception as e:
+            error_message = str(e)
+            messagebox.showerror("Error", f"{error_message}\n\nCheck application log for details")
+            self.log(f"Error: {error_message}")
 
     def log(self, message):
         self.log_text.insert(tk.END, message + '\n')
