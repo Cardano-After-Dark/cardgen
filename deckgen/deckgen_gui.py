@@ -9,6 +9,7 @@ import os
 from PIL import Image, ImageTk
 from deckgen import DeckGen, get_image_module
 import yaml
+import traceback
 
 from deckgen import DeckGen  # Import the DeckGen class we just created
 
@@ -148,8 +149,7 @@ class DeckGenGui:
                 self.update_gui_from_app()
                 self.log("Parameters loaded successfully")
             except Exception as e:
-                messagebox.showerror("Error", f"Failed to load parameters: {str(e)}")
-                self.log(f"Error loading parameters: {str(e)}")
+                self.log(f"Error loading parameters: {str(e)}", 'error', e)
 
     def save_parameters(self):
         self.update_deckgen_params()
@@ -165,8 +165,7 @@ class DeckGenGui:
                     yaml.dump(self.deckgen.parameters, f, default_flow_style=False)
                 self.log(f"Parameters saved successfully to {file_path}")
             except Exception as e:
-                messagebox.showerror("Error", f"Failed to save parameters: {str(e)}")
-                self.log(f"Error saving parameters: {str(e)}")
+                self.log(f"Error saving parameters: {str(e)}", 'error', e)
 
     def preview_deck(self):
         try:
@@ -225,19 +224,17 @@ class DeckGenGui:
             # Bind the resize event
             frame.bind("<Configure>", resize_image)
 
-            self.log(f"[INFO] Deck preview generated for {self.deckgen.parameters['prefix_string']}")
+            self.log(f"Deck preview generated for {self.deckgen.parameters['prefix_string']}")
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to generate preview: {str(e)}")
-            self.log(f"Error generating preview: {str(e)}")
+            self.log(f"Error generating preview: {str(e)}", 'error', e)
 
     def generate_deck(self):
         try:
             self.update_deckgen_params()
             self.deckgen.generate_deck()
-            self.log(f"[INFO] Deck generated {self.deckgen.parameters['prefix_string']} into {self.deckgen.parameters['output_folder']}")
+            self.log(f"Deck generated {self.deckgen.parameters['prefix_string']} into {self.deckgen.parameters['output_folder']}", 'exec')
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to generate deck: {str(e)}")
-            self.log(f"Error generating deck: {str(e)}")
+            self.log(f"Error generating deck: {str(e)}", 'error', e)
 
     def load_startup_config(self):
         config_path = os.path.join(os.getcwd(), "deckgen_conf.yaml")
@@ -249,8 +246,7 @@ class DeckGenGui:
                 self.update_gui_from_app()
                 self.log("Startup configuration loaded successfully")
             except Exception as e:
-                messagebox.showwarning("Warning", f"Failed to load startup configuration: {str(e)}")
-                self.log(f"Error loading startup configuration: {str(e)}")
+                self.log(f"Error loading startup configuration: {str(e)}", 'warning', e)
 
     def update_gui_from_app(self):
         for attr in ['input_folder', 'output_folder', 'prefix_string']:
@@ -266,17 +262,27 @@ class DeckGenGui:
         try:
             self.deckgen.parameters['app_params'] = yaml.safe_load(self.params_text.get('1.0', tk.END))
         except yaml.YAMLError as e:
-            messagebox.showerror("Error", f"Invalid YAML in params section: {str(e)}")
+            self.log(f"Invalid YAML in params section: {str(e)}", 'error')
             return
 
         try:
             self.deckgen.loadParams(self.deckgen.parameters)
         except Exception as e:
-            error_message = str(e)
-            messagebox.showerror("Error", f"{error_message}\n\nCheck application log for details")
-            self.log(f"Error: {error_message}")
+            self.log(f"Error updating parameters: {str(e)}", 'error')
+    
+    def log(self, message, log_type='info', exception: Exception = None):
+        # print exception
+        if exception:
+            traceback.print_exc()
 
-    def log(self, message):
+        # Show message box
+        if log_type == 'error':
+            messagebox.showerror("Error", message)
+        elif log_type == 'warning':
+            messagebox.showwarning("Warning", message)
+        
+        # Log the message with its type
+        message = f"[{log_type.upper()}] {message}"
         self.log_text.insert(tk.END, message + '\n')
         self.log_text.see(tk.END)
 

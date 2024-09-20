@@ -8,3 +8,4 @@ app_params:
     card value padding: 10
     main suit scale: 1
     main face scale: 1
+    recolor main suit: True
