@@ -33,3 +33,16 @@ class PropertiesIO:
     def set_property(self, key, value): 
         """ Set the property with the given key, value """
         self.properties[key] = value    
+
+    @classmethod
+    def tryLoading(cls, *paths):
+        """ Try loading properties from the given paths """
+        if not paths:
+            raise ValueError("At least one path must be provided")
+
+        for path in paths:
+            expanded_path = os.path.expanduser(path)
+            if os.path.exists(expanded_path):
+                return cls(expanded_path)
+        
+        raise FileNotFoundError(f"No property file found in the provided paths: {', '.join(paths)}")

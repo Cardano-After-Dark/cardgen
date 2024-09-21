@@ -12,7 +12,8 @@ class StabilityImGen:
         self.root = tk.Tk()
         self.root.title("Stability.ai Image Generator")
 
-        props = PropertiesIO(os.path.expanduser("~/stability.ai.properties"))
+        # search for properties file in the current directory and the user's home directory
+        props = PropertiesIO.tryLoading("./stability.ai.properties", "~/stability.ai.properties")
         api_key = props.get_property('stability.ai.api.key')
         log.info(f"API key loaded: {len(api_key)} bytes")
         self.client = StabilityAIClient(api_key)

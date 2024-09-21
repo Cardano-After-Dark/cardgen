@@ -2,25 +2,42 @@
 
 ## Prerequisites
 
-- Python 3.7+
-- pip (Python package installer)
+- Python 3.7+ with pip
 
-## Setup CLI
+## Applications
 
-Do the following on the command line only, before opening VSCode
+This repository contains two main applications: 
 
-1. Clone the repository:
+### deckgen
+Python application to generate a deck of cards. You can run it as follows:
+```bash
+cd deckgen
+python deckgen_gui.py
+```
+### imgen
+Python application to generate and save images using stability.ai apis
+```bash
+cd imgen
+python stability_imgen.py
+```
+To use imgen, you need to rename the stability.ai.properties.example by adding your apy key and removing the example prefix
+
+## Setup
+
+ - Clone the repository and enter the repo
    ```
    git clone git@github.com:Cardano-After-Dark/cardgen.git
    cd cardgen
    ```
 
-2. Create a virtual environment:
-   ```
+ - Create a virtual environment:
+   After cloning, you need create the venv at least once
+   ```bash
    python -m venv venv
    ```
 
-3. Activate the virtual environment:``
+ - Activate the virtual environment:
+   Every time you want to run the app, you first need to activate the venv
    - Windows:
      ```
      .\venv\Scripts\activate
@@ -30,7 +47,8 @@ Do the following on the command line only, before opening VSCode
      source venv/bin/activate
      ```
 
-4. Install dependencies:
+ - Install dependencies:
+   In a new, activated venv, you migh want to install the needed dependencies
    ```
    pip install -r requirements.txt
    ```

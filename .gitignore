@@ -109,3 +109,11 @@ cython_debug/
 
 # local backup files
 .backup*/
+
+# Ignore everything in all out directories
+out/**
+*/out/**
+
+# But do not ignore markdown files in any out directory
+!out/**/*.md
+!*/out/**/*.md

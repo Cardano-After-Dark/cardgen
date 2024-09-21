@@ -1,0 +1,4 @@
+# Enter your Stability AI API key, 
+# Rename this file to stability.ai.properties
+# The stability.ai.properties is gitignored
+stability.ai.api.key=<YOUR_API_KEY_HERE>
