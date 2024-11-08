@@ -112,7 +112,7 @@ nix-env -iA nixpkgs.python312Packages.virtualenv
 
 For macOS, Windows, and Linux, just install Python 3.12
 
-When python is installed 
+When python is installed execute these three commands from the root directory
 
 ``` bash
 python -m venv venv
