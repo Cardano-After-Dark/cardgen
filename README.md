@@ -108,6 +108,7 @@ If you have nixos, you need to :
 ```
 nix-env -iA nixpkgs.python312
 nix-env -iA nixpkgs.python312Packages.virtualenv
+nix-env -iA nixpkgs.python312Packages.tkinter
 ```
 
 For macOS, Windows, and Linux, just install Python 3.12
