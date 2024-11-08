@@ -104,14 +104,15 @@ Make sure to keep your API key confidential and never commit it to version contr
 
 ## Project setup
 
-If you have nixos,  you need to : 
+If you have nixos, you need to : 
 ```
 nix-env -iA nixpkgs.python312
 nix-env -iA nixpkgs.python312Packages.virtualenv
-
 ```
 
-Anyway, when python is installed 
+For macOS, Windows, and Linux, just install Python 3.12
+
+When python is installed 
 
 ``` bash
 python -m venv venv
