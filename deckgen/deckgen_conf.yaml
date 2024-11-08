@@ -1,11 +1,11 @@
-input_folder: "assets/input1"
-output_folder: "out/deck1"
-prefix_string: "poker_card"
 app_params:
   Design:
-    Preview index: 42
+    Preview index: 2
     card value margin: 10
     card value padding: 10
-    main suit scale: 1
     main face scale: 1
-    recolor main suit: True
+    main suit scale: 1
+    recolor main suit: true
+input_folder: assets/input1
+output_folder: out/deck1
+prefix_string: poker_card

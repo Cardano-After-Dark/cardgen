@@ -104,10 +104,19 @@ Make sure to keep your API key confidential and never commit it to version contr
 
 ## Project setup
 
+If you have nixos,  you need to : 
+```
+nix-env -iA nixpkgs.python312
+nix-env -iA nixpkgs.python312Packages.virtualenv
+
+```
+
+Anyway, when python is installed 
+
 ``` bash
 python -m venv venv
 source venv/bin/activate
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 

@@ -21,6 +21,7 @@ app_params:
     card value padding: 10
     main suit scale: 1
     main face scale: 1
+    recolor main suit: true
 """
 
 class CardConstants:
@@ -35,7 +36,7 @@ class CardConstants:
     HALF_CARD_SIZE = (1248, 1872)
     SUIT_SIZE = (700, 700)
     FONT_SIZE = 200
-    RED_COLOR = (255, 0, 255)  # RGB for red
+    RED_COLOR = (0, 255, 0)  # RGB for red (test color)
     BLACK_COLOR = (60, 60, 60)  # RGB for black
     SMOOTHNESS = 0.0001  # Suit contour smoothness (0.01 to 0.05 is a good range)
 
@@ -100,7 +101,11 @@ class CardGeneratorInput:
                 # Colorize the grayscale image
                 colored_image = ImageOps.colorize(gray_image, (0, 0, 0), rgb_color)
                 # Preserve the alpha channel from the original image
-                colored_image.putalpha(image.getchannel('A'))
+                
+                # FIXME: Set alpha to full opacity if necessary 
+                alpha_channel = image.getchannel('A')
+                colored_image.putalpha(alpha_channel)
+                
                 image = colored_image
 
             # Scale the image

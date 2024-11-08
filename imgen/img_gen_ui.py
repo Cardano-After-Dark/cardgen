@@ -32,7 +32,7 @@ class ImgGenUI:
         self.negative_prompt_entry = self.create_labeled_entry(input_frame, "Negative Prompt:", 1, width=80)
         self.aspect_ratio_var, self.aspect_ratio_combo = self.create_labeled_combobox(
             input_frame, "Aspect Ratio:", 2, 
-            values=["21:9", "16:9", "3:2", "5:4", "1:1", "4:5", "2:3", "9:16", "9:21"]
+            values=["21:9", "16:9", "3:2", "5:4", "1:1", "4:5", "2:3", "9:16", "9:21", "5:7"]
         )
         self.seed_entry = self.create_labeled_entry(input_frame, "Seed:", 3)
         self.output_format_var, self.output_format_combo = self.create_labeled_combobox(
