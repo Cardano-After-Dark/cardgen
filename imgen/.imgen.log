@@ -54,3 +54,6 @@
 2024-09-24 19:28:58,800 - imgen_logger - INFO - Loading latest_genio file from .imgen
 2024-09-24 19:28:58,807 - imgen_logger - INFO - Loaded GenIO: <gen_io.GenIO object at 0x109041580>
 2024-09-24 19:29:06,574 - imgen_logger - INFO - Loading image from ./out/genio
+2024-11-12 17:07:39,300 - imgen_logger - INFO - API key loaded: 51 bytes
+2024-11-12 17:07:39,300 - imgen_logger - INFO - Loading latest_genio file from .imgen
+2024-11-12 17:07:39,306 - imgen_logger - INFO - Loaded GenIO: <gen_io.GenIO object at 0x10a739d60>
