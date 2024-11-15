@@ -1,0 +1,24 @@
+{
+  "721": {
+    "POLICY-TEMPLATE": {
+      "TOKEN_NAME": {
+        "name": ,
+
+        "image": ,
+        "mediaType": image/,
+
+        "description": ,
+
+        "files": [{
+          "name": ,
+          "mediaType": ,
+          "src": ,
+          
+        }],
+
+        
+      }
+    },
+    "version": 
+  }
+}

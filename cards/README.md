@@ -7,13 +7,10 @@ double width to add a card same size: 2496×1872
 If we halve:1248×936
 halve again: 624×468
 
-First we generate the card fronts: 
+Generate card faces into ../cards.assets/Vert2_CAD_001/pngs/ using the sprite Each card is 624×936 and weight about 30-40 kb. 
 
-python exportPNG.py Vert2_CAD_001/svgs/sprite.svg Vert2_CAD_001/ -w 624
+python exportPNG.py ../cards.assets/Vert2_CAD_001/svgs/sprite.svg ../cards.assets/Vert2_CAD_001/ -w 624
 
-This will generarte cards into Vert2_CAD_001/pngs. Eeach card is 624×936 and weight about 30-40 kb. 
-
-Then we run the program to 
 
 
 
